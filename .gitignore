@@ -1,0 +1,29 @@
+
+# ignore the settings folder and files for VSCode and PSS
+.vscode/*
+*.psproj
+*TempPoint*
+library/TelemetryHelper/tester/*
+
+# Ignore staging info from Visual Studio
+library/TelemetryHelper/.vs/*
+library/TelemetryHelper/packages/*
+library/TelemetryHelper/TelemetryHelper/bin/*
+library/TelemetryHelper/TelemetryHelper/obj/*
+
+# Ignore compiled project binaries
+TelemetryHelper/bin/net452/TelemetryHelper*
+TelemetryHelper/bin/net452/*DiagnosticSource*
+TelemetryHelper/bin/net452/*ApplicationInsights*
+
+# ignore PowerShell Studio MetaData
+TelemetryHelper/TelemetryHelper.psproj
+TelemetryHelper/TelemetryHelper.psproj.bak
+TelemetryHelper/TelemetryHelper.psprojs
+TelemetryHelper/TelemetryHelper.psproj
+
+# ignore the TestResults
+TestResults/*
+
+# ignore the publishing Directory
+publish/*
