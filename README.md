@@ -8,12 +8,16 @@ With ApplicationInsights and TelemetryHelper you can send:
 - Events, which are the bread and butter. Events can carry a Dictionary<string,string> with property names and their values as well as a Dicitonary<string,double> containing metrics
 
 The TelemetryHelper module is entirely opt-in, meaning: Your users (or you on their behalf) need to opt-in to use telemetry. This is done either
-by setting a configurable environment variable or a PSFConfig value:
+by setting a configurable environment variable or a PSFConfig value.
+
+## Example
+
+Take a look at the following example with the ficticious module, MySweetModule.
 
 Environment variable:  
 
 ```powershell
-  Set-PSFConfig -Module 'TelemetryHelper' -Name 'Telemetry.OptInVariable' -Value 'de.janhendrikpeters.telemetryoptin' -PassThru | Register-PSFConfig
+  Set-PSFConfig -Module 'TelemetryHelper' -Name 'MySweetModule.OptInVariable' -Value 'de.janhendrikpeters.telemetryoptin' -PassThru | Register-PSFConfig
 ```
 
 The environmental variable needs to contain either: 0, 1, false, true, no or yes. If the variable is 1, true or yes, telemetry will be sent.
@@ -21,7 +25,7 @@ The environmental variable needs to contain either: 0, 1, false, true, no or yes
 PSFConfig value:  
 
 ```powershell
-  Set-PSFConfig -Module 'TelemetryHelper' -Name 'Telemetry.OptIn' -Value $false -PassThru | Register-PSFConfig
+  Set-PSFConfig -Module 'TelemetryHelper' -Name 'MySweetModule.OptIn' -Value $false -PassThru | Register-PSFConfig
 ```
 
 By specifying a boolean value for the OptIn setting, you can override the environmental variable and vice versa
@@ -31,5 +35,5 @@ which can be found on your ApplicationInsights account, for example like so:
 
 ```powershell
   $key = (Get-AzApplicationInsights -ResourceGroupName TotallyTerrificTelemetryTest -Name TurboTelemetry).InstrumentationKey
-  Set-PSFConfig -Module 'TelemetryHelper' -Name 'Telemetry.ApplicationInsights.InstrumentationKey' -Value $key -PassThru | Register-PSFConfig
+  Set-PSFConfig -Module 'TelemetryHelper' -Name 'MySweetModule.ApplicationInsights.InstrumentationKey' -Value $key -PassThru | Register-PSFConfig
 ```
