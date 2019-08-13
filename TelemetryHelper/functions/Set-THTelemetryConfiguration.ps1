@@ -52,7 +52,7 @@ function Set-THTelemetryConfiguration
     {
         if ($null -eq (Get-PSFConfigValue -FullName TelemetryHelper.TelemetryStore)[$ModuleName])
         {
-            Enable-THTelemetry -ModuleName $ModuleName
+            Initialize-THTelemetry -ModuleName $ModuleName
         }
 
         # Set object properties
