@@ -1,5 +1,8 @@
 # Description
 
+Build status: [![Build Status](https://dev.azure.com/japete/TelemetryHelper/_apis/build/status/TelemetryHelper-Release?branchName=master)](https://dev.azure.com/japete/TelemetryHelper/_build/latest?definitionId=7&branchName=master)
+Downloads from Gallery: [![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/TelemetryHelper.svg)](https://www.powershellgallery.com/packages/TelemetryHelper/)
+
 The TelemetryHelper module is intended to be used alongside your own modules and can send telemetry to Azure ApplicationInsights for the time being.
 
 With ApplicationInsights and TelemetryHelper you can send:
