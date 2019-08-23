@@ -56,6 +56,7 @@ namespace de.janhendrikpeters
         public TelemetryHelper()
         {
             StripPii = true;
+            DisableHeartbeat();
 
             if (string.IsNullOrWhiteSpace(ApiInstrumentationKey)) return;
 
@@ -66,6 +67,7 @@ namespace de.janhendrikpeters
         {
             StripPii = true;
             ModuleName = moduleName;
+            DisableHeartbeat();
 
             if (PSFramework.Configuration.ConfigurationHost.Configurations.ContainsKey($"TelemetryHelper.{ModuleName}.ApplicationInsights.InstrumentationKey"))
             {
@@ -181,6 +183,20 @@ namespace de.janhendrikpeters
         public void Flush()
         {
             telemetryClient.Flush();
+        }
+
+        private void DisableHeartbeat()
+        {
+            var telemetryModules = Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryModules.Instance;
+
+            foreach (var module in telemetryModules.Modules)
+            {
+                if (module is Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHeartbeatPropertyManager hbeatManager)
+                {
+                    var hb = module as Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHeartbeatPropertyManager;
+                    hb.IsHeartbeatEnabled = false;
+                }
+            }
         }
     }
 }
