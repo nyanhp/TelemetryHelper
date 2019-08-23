@@ -1,4 +1,7 @@
 # Changelog
+## 1.2.2 (2019-08-23)
+Disable client heartbeat
+
 ## 1.2.1 (2019-08-13)
 Renamed Enable-THTelemetry to Initialize-THTelemetry
 Updated readme
