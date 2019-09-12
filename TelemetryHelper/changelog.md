@@ -1,4 +1,7 @@
 # Changelog
+## 1.2.3 (2019-09-12)
+New parameter DoNotFlush to skip flushing the telemetry client
+
 ## 1.2.2 (2019-08-23)
 Disable client heartbeat
 

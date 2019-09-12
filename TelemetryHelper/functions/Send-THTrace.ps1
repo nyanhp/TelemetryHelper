@@ -9,6 +9,9 @@
     The severity of the trace message
 .PARAMETER ModuleName
     Auto-generated, used to select the proper configuration in case you have different modules
+.PARAMETER DoNotFlush
+    Indicates that data should be collected and flushed by the telemetry client at regular intervals
+    Intervals are 30s or 500 metrics
 .EXAMPLE
     Send-THTrace -Message "Oh god! It burns!"
 
@@ -33,8 +36,11 @@ function Send-THTrace
 
         [Parameter()]
         [string]
-        $ModuleName = (Get-CallingModule)
+        $ModuleName = (Get-CallingModule),
 
+        [Parameter()]
+        [switch]
+        $DoNotFlush
     )
 
     begin
@@ -62,6 +68,11 @@ function Send-THTrace
 
     end
     {
+        if ($DoNotFlush)
+        {
+            return
+        }
+
         try
         {
             $telemetryInstance.Flush()
