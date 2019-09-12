@@ -14,6 +14,9 @@
     Dictionary of metrics and their values
 .PARAMETER MetricsHash
     A Hashtable of metrics and values. Both metrics as well as values will be convert to string
+.PARAMETER DoNotFlush
+    Indicates that data should be collected and flushed by the telemetry client at regular intervals
+    Intervals are 30s or 500 metrics
 .PARAMETER ModuleName
     Auto-generated, used to select the proper configuration in case you have different modules
 .EXAMPLE
@@ -50,7 +53,11 @@ function Send-THEvent
         [Parameter(ParameterSetName = 'hashtable')]
         [Parameter(ParameterSetName = 'dictionary')]
         [string]
-        $ModuleName = (Get-CallingModule)
+        $ModuleName = (Get-CallingModule),
+
+        [Parameter()]
+        [switch]
+        $DoNotFlush
     )
 
     begin
@@ -112,6 +119,11 @@ function Send-THEvent
 
     end
     {
+        if ($DoNotFlush)
+        {
+            return
+        }
+
         try
         {
             $telemetryInstance.Flush()
