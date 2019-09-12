@@ -13,6 +13,9 @@
     Value (double) of the metric
 .PARAMETER ModuleName
     Auto-generated, used to select the proper configuration in case you have different modules
+.PARAMETER DoNotFlush
+    Indicates that data should be collected and flushed by the telemetry client at regular intervals
+    Intervals are 30s or 500 metrics
 .EXAMPLE
     Send-THMetric -MetricName Layer8Errors -Value 300
 
@@ -48,7 +51,11 @@ function Send-THMetric
 
         [Parameter()]
         [string]
-        $ModuleName = (Get-CallingModule)
+        $ModuleName = (Get-CallingModule),
+
+        [Parameter()]
+        [switch]
+        $DoNotFlush
     )
 
     $telemetryInstance = Get-THTelemetryConfiguration -ModuleName $ModuleName
@@ -63,14 +70,28 @@ function Send-THMetric
     {
         switch ($PSCmdlet.ParameterSetName)
         {
-            'NoDim' { $telemetryInstance.SendMetric($MetricName, $Value) }
-            'OneDim' { $telemetryInstance.SendMetric($MetricName, $MetricDimension1, $Value) }
-            'TwoDim' { $telemetryInstance.SendMetric($MetricName, $MetricDimension1, $MetricDimension2, $Value) }
+            'NoDim'
+            {
+                $telemetryInstance.SendMetric($MetricName, $Value)
+            }
+            'OneDim'
+            {
+                $telemetryInstance.SendMetric($MetricName, $MetricDimension1, $Value)
+            }
+            'TwoDim'
+            {
+                $telemetryInstance.SendMetric($MetricName, $MetricDimension1, $MetricDimension2, $Value)
+            }
         }
     }
     catch
     {
         Stop-PSFFunction -Message "Unable to send metric '$MetricName$MetricDimension1$MetricDimension2' with value $Value to ApplicationInsights" -Exception $_.Exception
+    }
+
+    if ($DoNotFlush)
+    {
+        return
     }
 
     try
