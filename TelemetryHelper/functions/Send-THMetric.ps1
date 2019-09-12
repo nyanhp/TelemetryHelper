@@ -72,15 +72,15 @@ function Send-THMetric
         {
             'NoDim'
             {
-                $telemetryInstance.SendMetric($MetricName, $Value) 
+                $telemetryInstance.SendMetric($MetricName, $Value)
             }
             'OneDim'
             {
-                $telemetryInstance.SendMetric($MetricName, $MetricDimension1, $Value) 
+                $telemetryInstance.SendMetric($MetricName, $MetricDimension1, $Value)
             }
             'TwoDim'
             {
-                $telemetryInstance.SendMetric($MetricName, $MetricDimension1, $MetricDimension2, $Value) 
+                $telemetryInstance.SendMetric($MetricName, $MetricDimension1, $MetricDimension2, $Value)
             }
         }
     }
