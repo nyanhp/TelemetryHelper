@@ -12,9 +12,12 @@ library/TelemetryHelper/TelemetryHelper/bin/*
 library/TelemetryHelper/TelemetryHelper/obj/*
 
 # Ignore compiled project binaries
-TelemetryHelper/bin/net452/TelemetryHelper*
-TelemetryHelper/bin/net452/*DiagnosticSource*
-TelemetryHelper/bin/net452/*ApplicationInsights*
+TelemetryHelper/bin/full/TelemetryHelper*
+TelemetryHelper/bin/full/*DiagnosticSource*
+TelemetryHelper/bin/full/*ApplicationInsights*
+TelemetryHelper/bin/core/TelemetryHelper*
+TelemetryHelper/bin/core/*DiagnosticSource*
+TelemetryHelper/bin/core/*ApplicationInsights*
 
 # ignore PowerShell Studio MetaData
 TelemetryHelper/TelemetryHelper.psproj
