@@ -1,4 +1,7 @@
 # Changelog
+### 1.2.5 (2019-09-14)
+Core and Linux compat
+
 ## 1.2.3 (2019-09-12)
 New parameter DoNotFlush to skip flushing the telemetry client
 
