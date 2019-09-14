@@ -9,11 +9,14 @@ foreach ($module in $modules) {
 }
 
 $binaryPath = Join-Path -Path (Get-Module PSFramework).ModuleBase -ChildPath Bin\PSFramework.dll -Resolve -ErrorAction Stop
-$path = Join-Path -Path $PSScriptRoot -ChildPath '..\library\TelemetryHelper' -Resolve -ErrorAction Stop
 $projPath = Join-Path -Path $PSScriptRoot -ChildPath '..\library\TelemetryHelper\TelemetryHelper\TelemetryHelper.csproj'  -Resolve -ErrorAction Stop
 
 $content = [xml](Get-Content -Path $projPath)
 ($content.Project.ItemGroup.Reference | Where-Object Include -eq PSFramework).HintPath = $binaryPath -replace '\\','/'
 $content.Save($projPath)
 
-dotnet build $path /p:Configuration=Release
+# Core
+dotnet publish $projPath -f netcoreapp2.2 -o (Join-Path -Path $PSScriptRoot '..\TelemetryHelper\bin\core')
+
+# Full
+dotnet publish $projPath -f net462 -o (Join-Path -Path $PSScriptRoot '..\TelemetryHelper\bin\full')
