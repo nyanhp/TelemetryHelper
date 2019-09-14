@@ -3,7 +3,7 @@
     RootModule           = 'TelemetryHelper.psm1'
 	
     # Version number of this module.
-    ModuleVersion        = '1.2.5'
+    ModuleVersion        = '1.2.6'
 	
     CompatiblePSEditions = 'Core', 'Desktop'
 	
