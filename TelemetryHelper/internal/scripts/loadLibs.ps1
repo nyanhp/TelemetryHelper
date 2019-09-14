@@ -1,5 +1,5 @@
-$typeLoaded = try
-{    
+﻿$typeLoaded = try
+{
     [de.janhendrikpeters.TelemetryHelper]
     Write-PSFMessage -Message 'Type imported'
 }
