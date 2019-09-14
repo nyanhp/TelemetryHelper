@@ -3,7 +3,7 @@
 # Load libs
 $typeLoaded = try
 {
-    [de.janhendrikpeters.TelemetryHelper]   
+    [de.janhendrikpeters.TelemetryHelper]
 }
 catch
 {
