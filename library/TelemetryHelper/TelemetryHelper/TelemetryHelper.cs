@@ -176,13 +176,22 @@ namespace de.janhendrikpeters
             Debug.Write($"User opted in, sending event {eventName}");
 
             telemetryClient.TrackEvent(eventName, properties, metrics);
-
             Debug.Write("Event sent");
         }
 
         public void Flush()
         {
             telemetryClient.Flush();
+        }
+
+        public void SendError(Exception exc)
+        {
+            if (!HasOptedIn) return;
+
+            Debug.Write($"User opted in, sending exception");
+
+            telemetryClient.TrackException(exc);
+            Debug.Write("Event sent");
         }
 
         private void DisableHeartbeat()
