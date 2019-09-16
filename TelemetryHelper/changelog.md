@@ -1,4 +1,7 @@
 # Changelog
+### 1.3.0 (2019-09-16)
+Track exceptions as well
+
 ### 1.2.5 (2019-09-14)
 Core and Linux compat
 
