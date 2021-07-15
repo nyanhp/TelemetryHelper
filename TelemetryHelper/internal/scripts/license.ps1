@@ -1,5 +1,5 @@
 ﻿New-PSFLicense -Product 'TelemetryHelper' -Manufacturer 'japete' -ProductVersion $script:ModuleVersion -ProductType Module -Name MIT -Version "1.0.0.0" -Date (Get-Date "2019-05-23") -Text @"
-Copyright (c) 2019 japete
+Copyright (c) 2021 japete
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
