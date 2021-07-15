@@ -1,4 +1,16 @@
-Install-PackageProvider -Name NuGet -Force
+try
+{
+  #https://docs.microsoft.com/en-us/dotnet/api/system.net.securityprotocoltype?view=netcore-2.0#System_Net_SecurityProtocolType_SystemDefault
+  if ($PSVersionTable.PSVersion.Major -lt 6 -and [Net.ServicePointManager]::SecurityProtocol -notmatch 'Tls12')
+  {
+    Write-Verbose -Message 'Adding support for TLS 1.2'
+    [Net.ServicePointManager]::SecurityProtocol += [Net.SecurityProtocolType]::Tls12
+  }
+}
+catch
+{ }
+
+Get-PackageProvider -Name Nuget -ForceBootstrap
 
 $modules = @("Pester", "PSFramework", "PSScriptAnalyzer", "PowerShellGet")
 
