@@ -34,6 +34,6 @@ function Add-THAppInsightsInstrumentationKey
         Set-THTelemetryConfiguration -ModuleName $ModuleName -OptInVariableName "$($ModuleName)telemetryOptIn"
     }
 
-    (Get-THTelemetryConfiguration -ModuleName $ModuleName).UpdateInstrumentationKey($InstumentationKey)
-    Set-PSFConfig -Module TelemetryHelper -Name "$ModuleName.ApplicationInsights.InstrumentationKey" -Value $InstumentationKey -PassThru -Hidden | Register-PSFConfig
+    (Get-THTelemetryConfiguration -ModuleName $ModuleName).UpdateInstrumentationKey($InstrumentationKey)
+    Set-PSFConfig -Module TelemetryHelper -Name "$ModuleName.ApplicationInsights.InstrumentationKey" -Value $InstrumentationKey -PassThru -Hidden | Register-PSFConfig
 }

@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <Reference Include="PSFramework">
-      <HintPath>C:\Program Files\WindowsPowerShell\Modules\PSFramework\1.0.19\bin\PSFramework.dll</HintPath>
+      <HintPath>C:\Program Files\WindowsPowerShell\Modules\PSFramework\1.6.193\bin\PSFramework.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

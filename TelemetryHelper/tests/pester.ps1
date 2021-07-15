@@ -3,8 +3,9 @@ param (
 	
 	$TestFunctions = $true,
 	
-	[ValidateSet('None', 'Default', 'Passed', 'Failed', 'Pending', 'Skipped', 'Inconclusive', 'Describe', 'Context', 'Summary', 'Header', 'Fails', 'All')]
-	$Show = "None",
+	[ValidateSet('None', 'Normal', 'Detailed', 'Diagnostic')]
+	[Alias('Show')]
+	$Output = "None",
 	
 	$Include = "*",
 	
@@ -15,17 +16,24 @@ Write-PSFMessage -Level Important -Message "Starting Tests"
 
 Write-PSFMessage -Level Important -Message "Importing Module"
 
+$global:testroot = $PSScriptRoot
+$global:__pester_data = @{ }
+
 Remove-Module TelemetryHelper -ErrorAction Ignore
 Import-Module "$PSScriptRoot\..\TelemetryHelper.psd1"
 Import-Module "$PSScriptRoot\..\TelemetryHelper.psm1" -Force
 
-Write-PSFMessage -Level Important -Message "Creating test result folder"
-$null = New-Item -Path "$PSScriptRoot\..\.." -Name TestResults -ItemType Directory -Force
+# Need to import explicitly so we can use the configuration class
+Import-Module Pester
+
+
 
 $totalFailed = 0
 $totalRun = 0
 
 $testresults = @()
+$config = [PesterConfiguration]::Default
+
 
 #region Run General Tests
 if ($TestGeneral)
@@ -33,21 +41,25 @@ if ($TestGeneral)
 	Write-PSFMessage -Level Important -Message "Modules imported, proceeding with general tests"
 	foreach ($file in (Get-ChildItem "$PSScriptRoot\general" | Where-Object Name -like "*.Tests.ps1"))
 	{
+		if ($file.Name -notlike $Include) { continue }
+		if ($file.Name -like $Exclude) { continue }
+
 		Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
-		$TestOuputFile = Join-Path "$PSScriptRoot\..\..\TestResults" "TEST-$($file.BaseName).xml"
-    $results = Invoke-Pester -Script $file.FullName -Show $Show -PassThru -OutputFile $TestOuputFile -OutputFormat NUnitXml
+		$config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\TestResults" "TEST-$($file.BaseName).xml"
+		$config.Run.Path = $file.FullName
+		$config.Run.PassThru = $true
+		$config.Output.Verbosity = $Output
+    	$results = Invoke-Pester -Configuration $config
 		foreach ($result in $results)
 		{
 			$totalRun += $result.TotalCount
 			$totalFailed += $result.FailedCount
-			$result.TestResult | Where-Object { -not $_.Passed } | ForEach-Object {
-				$name = $_.Name
+			$result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
 				$testresults += [pscustomobject]@{
-					Describe = $_.Describe
-					Context  = $_.Context
-					Name	 = "It $name"
+					Block    = $_.Block
+					Name	 = "It $($_.Name)"
 					Result   = $_.Result
-					Message  = $_.FailureMessage
+					Message  = $_.ErrorRecord.DisplayErrorMessage
 				}
 			}
 		}
@@ -55,30 +67,33 @@ if ($TestGeneral)
 }
 #endregion Run General Tests
 
+$global:__pester_data.ScriptAnalyzer | Out-Host
+
 #region Test Commands
 if ($TestFunctions)
 {
-Write-PSFMessage -Level Important -Message "Proceeding with individual tests"
+	Write-PSFMessage -Level Important -Message "Proceeding with individual tests"
 	foreach ($file in (Get-ChildItem "$PSScriptRoot\functions" -Recurse -File | Where-Object Name -like "*Tests.ps1"))
 	{
 		if ($file.Name -notlike $Include) { continue }
 		if ($file.Name -like $Exclude) { continue }
 		
 		Write-PSFMessage -Level Significant -Message "  Executing $($file.Name)"
-		$TestOuputFile = Join-Path "$PSScriptRoot\..\..\TestResults" "TEST-$($file.BaseName).xml"
-    $results = Invoke-Pester -Script $file.FullName -Show $Show -PassThru -OutputFile $TestOuputFile -OutputFormat NUnitXml
+		$config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\TestResults" "TEST-$($file.BaseName).xml"
+		$config.Run.Path = $file.FullName
+		$config.Run.PassThru = $true
+		$config.Output.Verbosity = $Output
+    	$results = Invoke-Pester -Configuration $config
 		foreach ($result in $results)
 		{
 			$totalRun += $result.TotalCount
 			$totalFailed += $result.FailedCount
-			$result.TestResult | Where-Object { -not $_.Passed } | ForEach-Object {
-				$name = $_.Name
+			$result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
 				$testresults += [pscustomobject]@{
-					Describe = $_.Describe
-					Context  = $_.Context
-					Name	 = "It $name"
+					Block    = $_.Block
+					Name	 = "It $($_.Name)"
 					Result   = $_.Result
-					Message  = $_.FailureMessage
+					Message  = $_.ErrorRecord.DisplayErrorMessage
 				}
 			}
 		}
@@ -88,7 +103,7 @@ Write-PSFMessage -Level Important -Message "Proceeding with individual tests"
 
 $testresults | Sort-Object Describe, Context, Name, Result, Message | Format-List
 
-if ($totalFailed -eq 0) { Write-PSFMessage -Level Critical -Message "All <c='em'>$totalRun</c> tests executed without a single failure!" }
+if ($totalFailed -eq 0) { Write-PSFMessage -Level Critical -Message "All <c='em'>$totalRun</c> tests executed without a single failure!"; exit 0 }
 else { Write-PSFMessage -Level Critical -Message "<c='em'>$totalFailed tests</c> out of <c='sub'>$totalRun</c> tests failed!" }
 
 if ($totalFailed -gt 0)

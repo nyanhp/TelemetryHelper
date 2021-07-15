@@ -60,8 +60,8 @@ function Set-THTelemetryConfiguration
 
         # Register module-specific info
         Set-PSFConfig -Module 'TelemetryHelper' -Name "$($ModuleName).OptInVariable" -Value $OptInVariableName -Description 'The name of the environment variable used to indicate that telemetry should be sent' -PassThru | Register-PSFConfig
-        Set-PSFConfig -Module 'TelemetryHelper' -Name "$($ModuleName).OptIn" -Value $false -Validation bool -Description 'Whether user opts into telemetry or not' -PassThru | Register-PSFConfig
-        Set-PSFConfig -Module 'TelemetryHelper' -Name "$($ModuleName).RemovePII" -VAlue $true -Validation bool -Description "Whether information like the computer name should be stripped from the data that is sent" -PassThru | Register-PSFConfig
+        Set-PSFConfig -Module 'TelemetryHelper' -Name "$($ModuleName).OptIn" -Value $UserOptIn -Validation bool -Description 'Whether user opts into telemetry or not' -PassThru | Register-PSFConfig
+        Set-PSFConfig -Module 'TelemetryHelper' -Name "$($ModuleName).RemovePII" -Value $StripPersonallyIdentifiableInformation -Validation bool -Description "Whether information like the computer name should be stripped from the data that is sent" -PassThru | Register-PSFConfig
 
 
         if ($PassThru)
