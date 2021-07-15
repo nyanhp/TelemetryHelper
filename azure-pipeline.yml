@@ -1,0 +1,40 @@
+﻿# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  - mimir
+  - dev
+  
+variables:
+  - group: TelemetryVars
+  - name: apikey
+    value: $[variables.apikey]
+
+pool:
+  vmImage: ubuntu-latest
+
+stages :
+- stage: Validation
+  jobs:
+  - job: validate
+    steps:
+     - pwsh: build\vsts-prerequisites.ps1
+       name: prereq
+     - pwsh: build\vsts-validate.ps1
+       name : validate
+
+- stage: Publishing
+  condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/mimir'))
+  jobs:
+   - job: publish
+     steps:
+      - pwsh: build\vsts-prerequisites.ps1
+        name: prereq
+      - pwsh: build\vsts-validate.ps1
+        name : validate
+      - pwsh: build\vsts-build.ps1
+        name : Publish
+        env:
+        ApiKey: $(apikey)
