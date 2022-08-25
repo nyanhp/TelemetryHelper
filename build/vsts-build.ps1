@@ -1,82 +1,110 @@
-<#
+﻿<#
 This script publishes the module to the gallery.
 It expects as input an ApiKey authorized to publish the module.
 
 Insert any build steps you may need to take before publishing it here.
 #>
-param
-(
-	$WorkingDirectory = $env:SYSTEM_DEFAULTWORKINGDIRECTORY
+param (
+	$ApiKey,
+	
+	$WorkingDirectory,
+	
+	$Repository = 'PSGallery',
+	
+	[switch]
+	$IncludeGitHubRelease,
+	
+	[switch]
+	$LocalRepo,
+	
+	[switch]
+	$SkipPublish,
+	
+	[switch]
+	$AutoVersion
 )
 
+#region Handle Working Directory Defaults
+if (-not $WorkingDirectory)
+{
+	if ($env:RELEASE_PRIMARYARTIFACTSOURCEALIAS)
+	{
+		$WorkingDirectory = Join-Path -Path $env:SYSTEM_DEFAULTWORKINGDIRECTORY -ChildPath $env:RELEASE_PRIMARYARTIFACTSOURCEALIAS
+	}
+	else { $WorkingDirectory = $env:SYSTEM_DEFAULTWORKINGDIRECTORY }
+}
+if (-not $WorkingDirectory) { $WorkingDirectory = Split-Path $PSScriptRoot }
+#endregion Handle Working Directory Defaults
+
 # Prepare publish folder
-Write-PSFMessage -Level Important -Message "Creating and populating publishing directory $WorkingDirectory"
-$publishDir = New-Item -Path $WorkingDirectory -Name publish -ItemType Directory
+Write-Host "Creating and populating publishing directory"
+$publishDir = New-Item -Path $WorkingDirectory -Name publish -ItemType Directory -Force
 Copy-Item -Path "$($WorkingDirectory)\TelemetryHelper" -Destination $publishDir.FullName -Recurse -Force
+$theModule = Import-PowerShellDataFile -Path "$($publishDir.FullName)\TelemetryHelper\TelemetryHelper.psd1"
 
-#region Gather text data to compile
-$text = @()
-$processed = @()
-
-# Gather Stuff to run before
-Write-PSFMessage -Level Important -Message "Processing filebefore"
-foreach ($line in (Get-Content "$($PSScriptRoot)\filesBefore.txt" | Where-Object { $_ -notlike "#*" }))
+# Generate Help
+$helpBase = Join-Path -Path $WorkingDirectory -ChildPath help
+foreach ($language in (Get-ChildItem -Directory -Path $helpBase))
 {
-	if ([string]::IsNullOrWhiteSpace($line)) { continue }
-	
-	$basePath = Join-Path "$($publishDir.FullName)\TelemetryHelper" $line
-	foreach ($entry in (Resolve-PSFPath -Path $basePath))
+	New-ExternalHelp -Path $language.FullName -OutputPath "$($publishDir.FullName)\TelemetryHelper\$($language.BaseName)" -Force
+}
+
+#region Updating the Module Version
+if ($AutoVersion)
+{
+	Write-Host  "Updating module version numbers."
+	try { $remoteVersion = (Find-Module 'TelemetryHelper' -Repository $Repository -ErrorAction Stop -AllowPrerelease:$(-not [string]::IsNullOrWhiteSpace($theModule.PrivateData.PSData.Prerelease))).Version }
+	catch
 	{
-		$item = Get-Item $entry
-		if ($item.PSIsContainer) { continue }
-		if ($item.FullName -in $processed) { continue }
-		$text += [System.IO.File]::ReadAllText($item.FullName)
-		$processed += $item.FullName
+		throw "Failed to access $($Repository) : $_"
 	}
-}
-
-# Gather commands
-Write-PSFMessage -Level Important -Message "Finding functions"
-Get-ChildItem -Path "$($publishDir.FullName)\TelemetryHelper\internal\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
-	$text += [System.IO.File]::ReadAllText($_.FullName)
-}
-Get-ChildItem -Path "$($publishDir.FullName)\TelemetryHelper\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
-	$text += [System.IO.File]::ReadAllText($_.FullName)
-}
-
-# Gather stuff to run afterwards
-Write-PSFMessage -Level Important -Message "Processing fileAfter"
-foreach ($line in (Get-Content "$($PSScriptRoot)\filesAfter.txt" | Where-Object { $_ -notlike "#*" }))
-{
-	if ([string]::IsNullOrWhiteSpace($line)) { continue }
-	
-	$basePath = Join-Path "$($publishDir.FullName)\TelemetryHelper" $line
-	foreach ($entry in (Resolve-PSFPath -Path $basePath))
+	if (-not $remoteVersion)
 	{
-		$item = Get-Item $entry
-		if ($item.PSIsContainer) { continue }
-		if ($item.FullName -in $processed) { continue }
-		$text += [System.IO.File]::ReadAllText($item.FullName)
-		$processed += $item.FullName
+		throw "Couldn't find TelemetryHelper on repository $($Repository) : $_"
 	}
+
+	$parameter = @{
+		Path = "$($publishDir.FullName)\TelemetryHelper\TelemetryHelper.psd1"
+	}
+
+	[Version]$remoteModuleVersion = $remoteVersion -replace '-\w+'
+	[string]$prerelease = $remoteVersion -replace '[\d\.]+-'
+	if ($prerelease)
+	{
+		$null = $prerelease -match '\d+'
+		$number = [int]$Matches.0 + 1
+		$parameter['Prerelease'] = $prerelease -replace '\d', $number
+	}
+	else
+	{
+		$newBuildNumber = $remoteModuleVersion.Build + 1
+		[version]$localVersion = $theModule.ModuleVersion
+		$parameter['ModuleVersion'] = "$($localVersion.Major).$($localVersion.Minor).$($newBuildNumber)"
+	}
+	Update-ModuleManifest @parameter
 }
-#endregion Gather text data to compile
+#endregion Updating the Module Version
 
-#region Update the psm1 file
-Write-PSFMessage -Level Important -Message "Update PSM1"
-$fileData = Get-Content -Path "$($publishDir.FullName)\TelemetryHelper\TelemetryHelper.psm1" -Raw
-$fileData = $fileData.Replace('"<was not compiled>"', '"<was compiled>"')
-$fileData = $fileData.Replace('"<compile code into here>"', ($text -join "`n`n"))
-[System.IO.File]::WriteAllText("$($publishDir.FullName)\TelemetryHelper\TelemetryHelper.psm1", $fileData, [System.Text.Encoding]::UTF8)
-#endregion Update the psm1 file
-
-# Publish to Gallery
-$ApiKey = $env:ApiKey
-
-if ([string]::IsNullOrWhiteSpace($ApiKey))
+#region Publish
+if ($SkipPublish) { return }
+if ($LocalRepo)
 {
-	throw "Why is there no API Key, boy?"
+	# Dependencies must go first
+	Write-Host  "Creating Nuget Package for module: PSFramework"
+	New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name PSFramework).ModuleBase -PackagePath .
+	Write-Host  "Creating Nuget Package for module: TelemetryHelper"
+	New-PSMDModuleNugetPackage -ModulePath "$($publishDir.FullName)\TelemetryHelper" -PackagePath .
+}
+else
+{
+	# Publish to Gallery
+	Write-Host  "Publishing the TelemetryHelper module to $($Repository)"
+	Publish-Module -Path "$($publishDir.FullName)\TelemetryHelper" -NuGetApiKey $ApiKey -Force -Repository $Repository
 }
 
-Write-PSFMessage -Level Important -Message "Publishing, $($publishDir.FullName)\TelemetryHelper, API: $(-join $ApiKey[0,1])...$(-join $ApiKey[-2,-1])"
-Publish-Module -Path "$($publishDir.FullName)\TelemetryHelper" -NuGetApiKey $ApiKey -Force -Confirm:$false -Verbose
+if ($IncludeGitHubRelease)
+{
+	Write-Host  "Creating Nuget Package for module: TelemetryHelper"
+	New-PSMDModuleNugetPackage -ModulePath "$($publishDir.FullName)\TelemetryHelper" -PackagePath .
+}
+#endregion Publish
