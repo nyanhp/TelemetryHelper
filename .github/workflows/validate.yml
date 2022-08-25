@@ -1,5 +1,6 @@
 ﻿on: [pull_request]
 
+name: Validate
 jobs:
   validate:
 

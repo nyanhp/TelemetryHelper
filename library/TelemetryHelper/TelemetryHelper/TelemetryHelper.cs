@@ -92,13 +92,14 @@ namespace de.janhendrikpeters
 
         public void UpdateInstrumentationKey(string instrumentationKey)
         {
+            var config = TelemetryConfiguration.CreateDefault();
+            config.InstrumentationKey = instrumentationKey;
+            config.TelemetryChannel.DeveloperMode = false;
             if (null == telemetryClient)
             {
-                telemetryClient = new TelemetryClient();
+                telemetryClient = new TelemetryClient(config);
             }
 
-            TelemetryConfiguration.Active.InstrumentationKey = instrumentationKey;
-            TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode = false;
             ApiInstrumentationKey = instrumentationKey;
         }
 
