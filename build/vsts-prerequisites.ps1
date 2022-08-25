@@ -25,4 +25,4 @@ foreach ($module in $modules) {
 }
 
 dotnet build "$PSScriptRoot\..\library\TelemetryHelper\TelemetryHelper\TelemetryHelper.csproj"
-dotnet publish "$PSScriptRoot\..\library\TelemetryHelper\TelemetryHelper\TelemetryHelper.csproj" -o "$PSScriptRoot\..\TelemetryHelper"
+dotnet publish "$PSScriptRoot\..\library\TelemetryHelper\TelemetryHelper\TelemetryHelper.csproj" -o "$PSScriptRoot\..\TelemetryHelper\bin\netstandard2.0"
