@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net462;netcoreapp2.2</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -9,12 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.9.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.18.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="PSFramework">
-      <HintPath>C:\Program Files\WindowsPowerShell\Modules\PSFramework\1.6.193\bin\PSFramework.dll</HintPath>
+      <HintPath>C:\Program Files\WindowsPowerShell\Modules\PSFramework\1.7.237\bin\PSFramework.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

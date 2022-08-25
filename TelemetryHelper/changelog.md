@@ -1,4 +1,6 @@
 # Changelog
+### 1.4.0 (2022-08-25)
+Bump AppInsights reference to lowest common denominator - PS 7 still uses the deprecated version 2.18
 ### 1.3.0 (2019-09-16)
 Track exceptions as well
 
