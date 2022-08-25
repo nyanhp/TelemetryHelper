@@ -17,7 +17,7 @@
     CompanyName          = 'Jan-Hendrik Peters'
 	
     # Copyright statement for this module
-    Copyright            = 'Copyright (c) 2019 Jan-Hendrik Peters'
+    Copyright            = 'Copyright (c) 2022 Jan-Hendrik Peters'
 	
     # Description of the functionality provided by this module
     Description          = 'This module helps you integrate telemetry with ApplicationInsights into your own PowerShell module'
