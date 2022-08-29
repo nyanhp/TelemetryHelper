@@ -3,7 +3,7 @@
     RootModule           = 'TelemetryHelper.psm1'
 	
     # Version number of this module.
-    ModuleVersion        = '1.5.0'
+    ModuleVersion        = '1.5.1'
 	
     CompatiblePSEditions = 'Core', 'Desktop'
 	
@@ -32,7 +32,7 @@
     )
 	
     # Assemblies that must be loaded prior to importing this module
-    # RequiredAssemblies   = @('bin\net452\TelemetryHelper.dll')
+    RequiredAssemblies   = @('bin\netstandard2.0\TelemetryHelper.dll')
 	
     # Type files (.ps1xml) to be loaded when importing this module
     # TypesToProcess = @('xml\TelemetryHelper.Types.ps1xml')
