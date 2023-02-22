@@ -3,7 +3,7 @@
     RootModule           = 'TelemetryHelper.psm1'
 	
     # Version number of this module.
-    ModuleVersion        = '1.5.1'
+    ModuleVersion        = '2.0.0'
 	
     CompatiblePSEditions = 'Core', 'Desktop'
 	
@@ -42,7 +42,7 @@
 	
     # Functions to export from this module
     FunctionsToExport    = @(
-        'Add-THAppInsightsInstrumentationKey'
+        'Add-THAppInsightsConnectionString'
         'Initialize-THTelemetry'
         'Get-THTelemetryConfiguration'
         'Send-THEvent'

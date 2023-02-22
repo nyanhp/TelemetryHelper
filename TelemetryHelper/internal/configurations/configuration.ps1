@@ -18,7 +18,7 @@ Set-PSFConfig -Module 'TelemetryHelper' -Name 'Import.IndividualFiles' -Value $t
 Set-PSFConfig -Module 'TelemetryHelper' -Name 'TelemetryStore' -Value @{}
 
 # Module telemetry settings
-Set-PSFConfig -Module 'TelemetryHelper' -Name 'TelemetryHelper.ApplicationInsights.InstrumentationKey' -Value $null -Initialize -Validation string -Description 'Your ApplicationInsights instrumentation key' -Hidden
+Set-PSFConfig -Module 'TelemetryHelper' -Name 'TelemetryHelper.ApplicationInsights.ConnectionString' -Value $null -Initialize -Validation string -Description 'Your ApplicationInsights connection string' -Hidden
 Set-PSFConfig -Module 'TelemetryHelper' -Name 'TelemetryHelper.OptInVariable' -Value 'TelemetryHelperTelemetryOptIn' -Initialize -Validation string -Description 'The name of the environment variable used to indicate that telemetry should be sent'
 Set-PSFConfig -Module 'TelemetryHelper' -Name 'TelemetryHelper.OptIn' -Value $false -Initialize -Validation bool -Description 'Whether user opts into telemetry or not'
 Set-PSFConfig -Module 'TelemetryHelper' -Name 'TelemetryHelper.RemovePII' -VAlue $true -Initialize -Validation bool -Description "Whether information like the computer name should be stripped from the data that is sent"

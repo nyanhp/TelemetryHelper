@@ -1,4 +1,8 @@
 # Changelog
+
+### 2.0.0 (2023-02-22)
+Migrate to ConnectionString (breaking change)
+
 ### 1.4.0 (2022-08-25)
 Bump AppInsights reference to lowest common denominator - PS 7 still uses the deprecated version 2.18
 ### 1.3.0 (2019-09-16)
