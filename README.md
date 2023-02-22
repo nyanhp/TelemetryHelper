@@ -33,10 +33,10 @@ PSFConfig value:
 
 By specifying a boolean value for the OptIn setting, you can override the environmental variable and vice versa
 
-To be able to send telemetry, you need to create an ApplicationInsights account and use the telemetry instrumentation key
+To be able to send telemetry, you need to create an ApplicationInsights account and use the telemetry connection string
 which can be found on your ApplicationInsights account, for example like so:  
 
 ```powershell
-  $key = (Get-AzApplicationInsights -ResourceGroupName TotallyTerrificTelemetryTest -Name TurboTelemetry).InstrumentationKey
-  Set-PSFConfig -Module 'TelemetryHelper' -Name 'MySweetModule.ApplicationInsights.InstrumentationKey' -Value $key -PassThru | Register-PSFConfig
+  $key = (Get-AzApplicationInsights -ResourceGroupName TotallyTerrificTelemetryTest -Name TurboTelemetry).ConnectionString
+  Set-PSFConfig -Module 'TelemetryHelper' -Name 'MySweetModule.ApplicationInsights.ConnectionString' -Value $key -PassThru | Register-PSFConfig
 ```

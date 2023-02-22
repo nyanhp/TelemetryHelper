@@ -14,7 +14,7 @@ namespace de.janhendrikpeters
     {
         private TelemetryClient telemetryClient = null;
 
-        public string ApiInstrumentationKey { get; private set; }
+        public string ApiConnectionString { get; private set; }
         public string ModuleName { get; set; }
         public bool StripPii { get; set; }
 
@@ -58,9 +58,9 @@ namespace de.janhendrikpeters
             StripPii = true;
             DisableHeartbeat();
 
-            if (string.IsNullOrWhiteSpace(ApiInstrumentationKey)) return;
+            if (string.IsNullOrWhiteSpace(ApiConnectionString)) return;
 
-            UpdateInstrumentationKey(ApiInstrumentationKey);
+            UpdateConnectionString(ApiConnectionString);
         }
 
         public TelemetryHelper(string moduleName)
@@ -69,9 +69,9 @@ namespace de.janhendrikpeters
             ModuleName = moduleName;
             DisableHeartbeat();
 
-            if (PSFramework.Configuration.ConfigurationHost.Configurations.ContainsKey($"TelemetryHelper.{ModuleName}.ApplicationInsights.InstrumentationKey"))
+            if (PSFramework.Configuration.ConfigurationHost.Configurations.ContainsKey($"TelemetryHelper.{ModuleName}.ApplicationInsights.ConnectionString"))
             {
-                ApiInstrumentationKey = PSFramework.Configuration.ConfigurationHost.Configurations[$"TelemetryHelper.{ModuleName}.ApplicationInsights.InstrumentationKey"].Value as string;
+                ApiConnectionString = PSFramework.Configuration.ConfigurationHost.Configurations[$"TelemetryHelper.{ModuleName}.ApplicationInsights.ConnectionString"].Value as string;
             }
 
             if (PSFramework.Configuration.ConfigurationHost.Configurations.ContainsKey($"TelemetryHelper.{ModuleName}.StripPii"))
@@ -79,9 +79,9 @@ namespace de.janhendrikpeters
                 StripPii = Convert.ToBoolean(PSFramework.Configuration.ConfigurationHost.Configurations[$"TelemetryHelper.{ModuleName}.StripPii"].Value);
             }
 
-            if (string.IsNullOrWhiteSpace(ApiInstrumentationKey)) return;
+            if (string.IsNullOrWhiteSpace(ApiConnectionString)) return;
 
-            UpdateInstrumentationKey(ApiInstrumentationKey);
+            UpdateConnectionString(ApiConnectionString);
 
             if (StripPii)
             {
@@ -90,17 +90,17 @@ namespace de.janhendrikpeters
             }
         }
 
-        public void UpdateInstrumentationKey(string instrumentationKey)
+        public void UpdateConnectionString(string ConnectionString)
         {
             var config = TelemetryConfiguration.CreateDefault();
-            config.InstrumentationKey = instrumentationKey;
+            config.ConnectionString = ConnectionString;
             config.TelemetryChannel.DeveloperMode = false;
             if (null == telemetryClient)
             {
                 telemetryClient = new TelemetryClient(config);
             }
 
-            ApiInstrumentationKey = instrumentationKey;
+            ApiConnectionString = ConnectionString;
         }
 
         // taken from https://github.com/powershell/powershell
