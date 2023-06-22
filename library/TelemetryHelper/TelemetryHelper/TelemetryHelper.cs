@@ -7,12 +7,18 @@ using System.Collections;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 
 namespace de.janhendrikpeters
 {
     public class TelemetryHelper
     {
         private TelemetryClient telemetryClient = null;
+        private static Assembly s_self;
+        private static string s_dependencyFolder;
+        private static HashSet<string> s_dependencies;
+        private static AssemblyLoadContextProxy s_proxy;
 
         public string ApiConnectionString { get; private set; }
         public string ModuleName { get; set; }
@@ -55,8 +61,7 @@ namespace de.janhendrikpeters
 
         public TelemetryHelper()
         {
-            StripPii = true;
-            DisableHeartbeat();
+            Init();
 
             if (string.IsNullOrWhiteSpace(ApiConnectionString)) return;
 
@@ -65,9 +70,8 @@ namespace de.janhendrikpeters
 
         public TelemetryHelper(string moduleName)
         {
-            StripPii = true;
+            Init();
             ModuleName = moduleName;
-            DisableHeartbeat();
 
             if (PSFramework.Configuration.ConfigurationHost.Configurations.ContainsKey($"TelemetryHelper.{ModuleName}.ApplicationInsights.ConnectionString"))
             {
@@ -88,6 +92,23 @@ namespace de.janhendrikpeters
                 telemetryClient.Context.Cloud.RoleInstance = "nope";
                 telemetryClient.Context.Cloud.RoleName = "nope";
             }
+        }
+
+        private void Init()
+        {
+            StripPii = true;
+            DisableHeartbeat();
+            s_self = typeof(TelemetryHelper).Assembly;
+            s_dependencyFolder = Path.GetDirectoryName(s_self.Location);
+            s_dependencies = new(StringComparer.Ordinal);
+            s_proxy = AssemblyLoadContextProxy.CreateLoadContext("telemetryhelper-load-context");
+
+            foreach (string filePath in Directory.EnumerateFiles(s_dependencyFolder, "*.dll"))
+            {
+                s_dependencies.Add(AssemblyName.GetAssemblyName(filePath).FullName);
+            }
+
+            AppDomain.CurrentDomain.AssemblyResolve += ResolvingHandler;
         }
 
         public void UpdateConnectionString(string ConnectionString)
@@ -207,6 +228,41 @@ namespace de.janhendrikpeters
                     hb.IsHeartbeatEnabled = false;
                 }
             }
+        }
+
+        // Thank you, Dongbo Wang!  https://github.com/daxian-dbw/PowerShell-ALC-Samples 
+        private static bool IsAssemblyMatching(AssemblyName assemblyName, Assembly requestingAssembly)
+        {
+            // The requesting assembly is always available in .NET, but could be null in .NET Framework.
+            // - When the requesting assembly is available, we check whether the loading request came from this
+            //   module, so as to make sure we only act on the request from this module.
+            // - When the requesting assembly is not available, we just have to depend on the assembly name only.
+            return requestingAssembly is not null
+                ? requestingAssembly == s_self && s_dependencies.Contains(assemblyName.FullName)
+                : s_dependencies.Contains(assemblyName.FullName);
+        }
+
+        internal static Assembly ResolvingHandler(object sender, ResolveEventArgs args)
+        {
+            var assemblyName = new AssemblyName(args.Name);
+            if (IsAssemblyMatching(assemblyName, args.RequestingAssembly))
+            {
+                string fileName = assemblyName.Name + ".dll";
+                string filePath = Path.Combine(Assembly.GetExecutingAssembly().Location, fileName);
+
+                if (File.Exists(filePath))
+                {
+                    Console.WriteLine($"<*** Fall in 'ResolvingHandler': Newtonsoft.Json, Version=13.0.0.0  -- Loaded! ***>");
+                    // - In .NET, load the assembly into the custom assembly load context.
+                    // - In .NET Framework, assembly conflict is not a problem, so we load the assembly
+                    //   by 'Assembly.LoadFrom', the same as what powershell.exe would do.
+                    return s_proxy is not null
+                        ? s_proxy.LoadFromAssemblyPath(filePath)
+                        : Assembly.LoadFrom(filePath);
+                }
+            }
+
+            return null;
         }
     }
 }
