@@ -12,9 +12,6 @@ param (
 	$Repository = 'PSGallery',
 	
 	[switch]
-	$IncludeGitHubRelease,
-	
-	[switch]
 	$LocalRepo,
 	
 	[switch]
@@ -40,14 +37,50 @@ if (-not $WorkingDirectory) { $WorkingDirectory = Split-Path $PSScriptRoot }
 Write-Host "Creating and populating publishing directory"
 $publishDir = New-Item -Path $WorkingDirectory -Name publish -ItemType Directory -Force
 Copy-Item -Path "$($WorkingDirectory)\TelemetryHelper" -Destination $publishDir.FullName -Recurse -Force
-$theModule = Import-PowerShellDataFile -Path "$($publishDir.FullName)\TelemetryHelper\TelemetryHelper.psd1"
 
-# Generate Help
-$helpBase = Join-Path -Path $WorkingDirectory -ChildPath help
-foreach ($language in (Get-ChildItem -Directory -Path $helpBase))
+#region Gather text data to compile
+$text = @()
+$processed = @()
+
+# Gather Stuff to run before
+foreach ($filePath in (& "$($PSScriptRoot)\..\TelemetryHelper\internal\scripts\preimport.ps1"))
 {
-	New-ExternalHelp -Path $language.FullName -OutputPath "$($publishDir.FullName)\TelemetryHelper\$($language.BaseName)" -Force
+	if ([string]::IsNullOrWhiteSpace($filePath)) { continue }
+	
+	$item = Get-Item $filePath
+	if ($item.PSIsContainer) { continue }
+	if ($item.FullName -in $processed) { continue }
+	$text += [System.IO.File]::ReadAllText($item.FullName)
+	$processed += $item.FullName
 }
+
+# Gather commands
+Get-ChildItem -Path "$($publishDir.FullName)\TelemetryHelper\internal\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
+	$text += [System.IO.File]::ReadAllText($_.FullName)
+}
+Get-ChildItem -Path "$($publishDir.FullName)\TelemetryHelper\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
+	$text += [System.IO.File]::ReadAllText($_.FullName)
+}
+
+# Gather stuff to run afterwards
+foreach ($filePath in (& "$($PSScriptRoot)\..\TelemetryHelper\internal\scripts\postimport.ps1"))
+{
+	if ([string]::IsNullOrWhiteSpace($filePath)) { continue }
+	
+	$item = Get-Item $filePath
+	if ($item.PSIsContainer) { continue }
+	if ($item.FullName -in $processed) { continue }
+	$text += [System.IO.File]::ReadAllText($item.FullName)
+	$processed += $item.FullName
+}
+#endregion Gather text data to compile
+
+#region Update the psm1 file
+$fileData = Get-Content -Path "$($publishDir.FullName)\TelemetryHelper\TelemetryHelper.psm1" -Raw
+$fileData = $fileData.Replace('"<was not compiled>"', '"<was compiled>"')
+$fileData = $fileData.Replace('"<compile code into here>"', ($text -join "`n`n"))
+[System.IO.File]::WriteAllText("$($publishDir.FullName)\TelemetryHelper\TelemetryHelper.psm1", $fileData, [System.Text.Encoding]::UTF8)
+#endregion Update the psm1 file
 
 #region Updating the Module Version
 if ($AutoVersion)
@@ -89,22 +122,13 @@ if ($AutoVersion)
 if ($SkipPublish) { return }
 if ($LocalRepo)
 {
-	# Dependencies must go first
-	Write-Host  "Creating Nuget Package for module: PSFramework"
-	New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name PSFramework).ModuleBase -PackagePath .
-	Write-Host  "Creating Nuget Package for module: TelemetryHelper"
+	Write-Host "Creating Nuget Package for module: TelemetryHelper"
 	New-PSMDModuleNugetPackage -ModulePath "$($publishDir.FullName)\TelemetryHelper" -PackagePath .
 }
 else
 {
 	# Publish to Gallery
-	Write-Host  "Publishing the TelemetryHelper module to $($Repository)"
+	Write-Host "Publishing the TelemetryHelper module to $($Repository)"
 	Publish-Module -Path "$($publishDir.FullName)\TelemetryHelper" -NuGetApiKey $ApiKey -Force -Repository $Repository
-}
-
-if ($IncludeGitHubRelease)
-{
-	Write-Host  "Creating Nuget Package for module: TelemetryHelper"
-	New-PSMDModuleNugetPackage -ModulePath "$($publishDir.FullName)\TelemetryHelper" -PackagePath .
 }
 #endregion Publish

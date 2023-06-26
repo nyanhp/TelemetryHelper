@@ -46,20 +46,21 @@ if ($TestGeneral)
 
 		Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
 		$config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\TestResults" "TEST-$($file.BaseName).xml"
+		$config.TestResult.Enabled = $true
 		$config.Run.Path = $file.FullName
 		$config.Run.PassThru = $true
 		$config.Output.Verbosity = $Output
-    	$results = Invoke-Pester -Configuration $config
+		$results = Invoke-Pester -Configuration $config
 		foreach ($result in $results)
 		{
 			$totalRun += $result.TotalCount
 			$totalFailed += $result.FailedCount
 			$result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
 				$testresults += [pscustomobject]@{
-					Block    = $_.Block
-					Name	 = "It $($_.Name)"
-					Result   = $_.Result
-					Message  = $_.ErrorRecord.DisplayErrorMessage
+					Block   = $_.Block
+					Name    = "It $($_.Name)"
+					Result  = $_.Result
+					Message = $_.ErrorRecord.DisplayErrorMessage
 				}
 			}
 		}
@@ -80,20 +81,33 @@ if ($TestFunctions)
 		
 		Write-PSFMessage -Level Significant -Message "  Executing $($file.Name)"
 		$config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\TestResults" "TEST-$($file.BaseName).xml"
+		$config.TestResult.Enabled = $true
+		$config.CodeCoverage.Enabled = $true
+		$cocoPath = if (Test-Path "$PSScriptRoot\..\..\TelemetryHelper\functions\$($file.BaseName -replace '\.tests').ps1")
+		{
+			"$PSScriptRoot\..\..\TelemetryHelper\functions\$($file.BaseName -replace '\.tests').ps1"
+		}
+		else
+		{
+			"$PSScriptRoot\..\..\TelemetryHelper\internal\functions\$($file.BaseName -replace '\.tests').ps1"
+		}
+		$config.CodeCoverage.Path = $cocoPath
+		$config.CodeCoverage.CoveragePercentTarget = 80
+		$config.CodeCoverage.OutputPath = Join-Path "$PSScriptRoot\..\..\TestResults" "COVERAGE-$($file.BaseName).xml"
 		$config.Run.Path = $file.FullName
 		$config.Run.PassThru = $true
 		$config.Output.Verbosity = $Output
-    	$results = Invoke-Pester -Configuration $config
+		$results = Invoke-Pester -Configuration $config
 		foreach ($result in $results)
 		{
 			$totalRun += $result.TotalCount
 			$totalFailed += $result.FailedCount
 			$result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
 				$testresults += [pscustomobject]@{
-					Block    = $_.Block
-					Name	 = "It $($_.Name)"
-					Result   = $_.Result
-					Message  = $_.ErrorRecord.DisplayErrorMessage
+					Block   = $_.Block
+					Name    = "It $($_.Name)"
+					Result  = $_.Result
+					Message = $_.ErrorRecord.DisplayErrorMessage
 				}
 			}
 		}
