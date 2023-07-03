@@ -6,14 +6,10 @@
     telemetry instrument. Properties and Metrics can all be evaluated in e.g. PowerBI or an AppInsights query.
 .PARAMETER EventName
     Name of the event
-.PARAMETER Properties
-    Dictionary of properties and their values.
 .PARAMETER PropertiesHash
-    A Hashtable of properties and values. Both properties as well as values will be convert to string
-.PARAMETER Metrics
-    Dictionary of metrics and their values
+    A Hashtable of properties and values. Both properties as well as values will be converted to string
 .PARAMETER MetricsHash
-    A Hashtable of metrics and values. Both metrics as well as values will be convert to string
+    A Hashtable of metrics and values. Metric name will be converted to string, value to double
 .PARAMETER DoNotFlush
     Indicates that data should be collected and flushed by the telemetry client at regular intervals
     Intervals are 30s or 500 metrics
@@ -26,32 +22,24 @@
 #>
 function Send-THEvent
 {
-    [CmdletBinding(DefaultParameterSetName = 'dictionary')]
+    [CmdletBinding()]
     param
     (
-        [Parameter(ParameterSetName = 'dictionary', Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
-        [Parameter(ParameterSetName = 'hashtable', Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(, Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [string]
         $EventName,
 
-        [Parameter(ParameterSetName = 'dictionary')]
-        [System.Collections.Generic.Dictionary`2[string, string]]
-        $Properties,
-
-        [Parameter(ParameterSetName = 'hashtable')]
+        [Alias('Properties')]
+        [Parameter()]
         [System.Collections.Hashtable]
         $PropertiesHash,
 
-        [Parameter(ParameterSetName = 'dictionary')]
-        [System.Collections.Generic.Dictionary`2[string, double]]
-        $Metrics,
-
-        [Parameter(ParameterSetName = 'hashtable')]
+        [Alias('Metrics')]
+        [Parameter()]
         [System.Collections.Hashtable]
         $MetricsHash,
 
-        [Parameter(ParameterSetName = 'hashtable')]
-        [Parameter(ParameterSetName = 'dictionary')]
+        [Parameter()]
         [string]
         $ModuleName = (Get-CallingModule),
 

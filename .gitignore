@@ -4,6 +4,7 @@
 *.psproj
 *TempPoint*
 library/TelemetryHelper/tester/*
+TelemetryHelper/bin
 
 # Ignore staging info from Visual Studio
 library/TelemetryHelper/.vs/*
