@@ -12,38 +12,40 @@ BeforeDiscovery {
 Describe 'Get-THTelemetryConfiguration' {
 
     Context 'No telemetry configuration yet' {
+        BeforeEach {
+            Mock -CommandName Get-PSFConfigValue -ModuleName TelemetryHelper -MockWith { return @{} }
+            Mock -CommandName Get-CallingModule { return $global:callingModule } -ModuleName TelemetryHelper
+        }
 
         It 'Should not throw' {
-            Mock -CommandName Get-PSFConfigValue -ModuleName TelemetryHelper -MockWith { return @{} }
 
-            { Get-THTelemetryConfiguration -ModuleName $global:callingModule -ErrorAction Stop } | Should -Not -Throw
+            { Get-THTelemetryConfiguration -ErrorAction Stop } | Should -Not -Throw
         }
 
         It 'Should return null' {
-            Mock -CommandName Get-PSFConfigValue -ModuleName TelemetryHelper -MockWith { return @{} }
 
-            Get-THTelemetryConfiguration -ModuleName $global:callingModule | Should -BeNullOrEmpty
+            Get-THTelemetryConfiguration | Should -BeNullOrEmpty
         }
 
         It 'Should call all mocks' {
-            Mock -CommandName Get-PSFConfigValue -ModuleName TelemetryHelper -MockWith { return @{} }
 
-            $null = Get-THTelemetryConfiguration -ModuleName $global:callingModule
+            $null = Get-THTelemetryConfiguration
 
             Should -Invoke Get-PSFConfigValue -Exactly -Times 1 -ModuleName TelemetryHelper
         }
     }
     Context 'Telemetry configuration initialized' {
-        It 'Should not throw' {
+        BeforeEach {
+            Mock -CommandName Get-CallingModule { return $global:callingModule } -ModuleName TelemetryHelper
             Mock -CommandName Get-PSFConfigValue { return $global:returnableObjectInitialized } -ModuleName TelemetryHelper
+        }
 
-            { Get-THTelemetryConfiguration -ModuleName $global:callingModule -ErrorAction Stop } | Should -Not -Throw
+        It 'Should not throw' {
+            { Get-THTelemetryConfiguration -ErrorAction Stop } | Should -Not -Throw
         }
 
         It 'Should not be null' {
-            Mock -CommandName Get-PSFConfigValue { return $global:returnableObjectInitialized } -ModuleName TelemetryHelper
-
-            $config = Get-THTelemetryConfiguration -ModuleName $global:callingModule
+            $config = Get-THTelemetryConfiguration
             $config | Should -Not -BeNullOrEmpty
             $config.ApiConnectionString | Should -Be $global:returnableObjectInitialized[$global:callingModule].ApiConnectionString
             $config.ModuleName | Should -Be $global:returnableObjectInitialized[$global:callingModule].ModuleName
@@ -51,11 +53,10 @@ Describe 'Get-THTelemetryConfiguration' {
         }
 
         It 'Should call all mocks' {
-            Mock -CommandName Get-PSFConfigValue { return $global:returnableObjectInitialized } -ModuleName TelemetryHelper
-
-            $null = Get-THTelemetryConfiguration -ModuleName $global:callingModule
+            $null = Get-THTelemetryConfiguration
 
             Should -Invoke Get-PSFConfigValue -Exactly -Times 1 -ModuleName TelemetryHelper
+            Should -Invoke Get-CallingModule -Exactly -Times 1 -ModuleName TelemetryHelper
         }
     }
 }
