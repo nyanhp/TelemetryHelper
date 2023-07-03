@@ -29,10 +29,12 @@ function Send-THEvent
         [string]
         $EventName,
 
+        [Alias('Properties')]
         [Parameter()]
         [System.Collections.Hashtable]
         $PropertiesHash,
 
+        [Alias('Metrics')]
         [Parameter()]
         [System.Collections.Hashtable]
         $MetricsHash,
