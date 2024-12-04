@@ -207,7 +207,7 @@ namespace de.janhendrikpeters
 
             Debug.Write($"User opted in, tracking availability for {testName}");
             telemetryClient.TrackAvailability(testName, timeStamp, duration, location, success, message, properties, metrics);
-            Debug.Write("Availability sent";)
+            Debug.Write("Availability sent");
         }
 
         public void Flush()
