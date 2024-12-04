@@ -48,7 +48,7 @@ function Send-THAvailability
 
         [Parameter()]
         [bool]
-        $Available = $true
+        $Available = $true,
 
         [Parameter()]
         [DateTimeOffset]
