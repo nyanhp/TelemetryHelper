@@ -49,6 +49,7 @@
         'Send-THTrace'
         'Send-THMetric'
         'Send-THException'
+        'Send-THAvailability'
         'Set-THTelemetryConfiguration'
     )
 	
