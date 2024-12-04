@@ -201,6 +201,15 @@ namespace de.janhendrikpeters
             Debug.Write("Event sent");
         }
 
+        public void SendAvailability (string testName, DateTimeOffset timeStamp, TimeSpan duration, string location, bool success = true, string message = "", Dictionary<string, string> properties = null, Dictionary<string, double> metrics = null)
+        {
+            if (!HasOptedIn) return;
+
+            Debug.Write($"User opted in, tracking availability for {testName}");
+            telemetryClient.TrackAvailability(testName, timeStamp, duration, location, success, message, properties, metrics);
+            Debug.Write("Availability sent";)
+        }
+
         public void Flush()
         {
             telemetryClient.Flush();

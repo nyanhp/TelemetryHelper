@@ -3,7 +3,7 @@
     RootModule           = 'TelemetryHelper.psm1'
 	
     # Version number of this module.
-    ModuleVersion        = '2.1.2'
+    ModuleVersion        = '2.2.0'
 	
     CompatiblePSEditions = 'Core', 'Desktop'
 	
@@ -28,7 +28,7 @@
     # Modules that must be imported into the global environment prior to importing
     # this module
     RequiredModules      = @(
-        @{ ModuleName='PSFramework'; ModuleVersion='1.7.237' }
+        @{ ModuleName='PSFramework'; ModuleVersion='1.12.346' }
     )
 	
     # Assemblies that must be loaded prior to importing this module
