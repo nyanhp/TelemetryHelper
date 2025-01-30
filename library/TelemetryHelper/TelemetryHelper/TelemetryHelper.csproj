@@ -12,7 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="PSFramework">
-      <HintPath>C:\Program Files\WindowsPowerShell\Modules\PSFramework\1.7.270\bin\PSFramework.dll</HintPath>
+      <HintPath>/home/jhp/.local/share/powershell/Modules/PSFramework/1.12.346/bin/PSFramework.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
