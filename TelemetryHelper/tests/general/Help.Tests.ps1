@@ -36,13 +36,13 @@ Param (
 	$SkipTest,
 	
 	[string[]]
-	$CommandPath = @("$global:testroot\..\functions", "$global:testroot\..\internal\functions"),
+	$CommandPath = @("$global:testroot/../functions", "$global:testroot/../internal/functions"),
 	
 	[string]
 	$ModuleName = "TelemetryHelper",
 	
 	[string]
-	$ExceptionsFile = "$global:testroot\general\Help.Exceptions.ps1"
+	$ExceptionsFile = "$global:testroot/general/Help.Exceptions.ps1"
 )
 if ($SkipTest) { return }
 . $ExceptionsFile
@@ -89,7 +89,7 @@ foreach ($command in $commands) {
         
         Context "Test parameter help for $commandName" {
             
-            $common = 'Debug', 'ErrorAction', 'ErrorVariable', 'InformationAction', 'InformationVariable', 'OutBuffer', 'OutVariable', 'PipelineVariable', 'Verbose', 'WarningAction', 'WarningVariable'
+            $common = 'Debug', 'ErrorAction', 'ErrorVariable', 'InformationAction', 'InformationVariable', 'OutBuffer', 'OutVariable', 'PipelineVariable', 'Verbose', 'WarningAction', 'WarningVariable', 'ProgressAction'
             
             $parameters = $command.ParameterSets.Parameters | Sort-Object -Property Name -Unique | Where-Object Name -notin $common
             $parameterNames = $parameters.Name

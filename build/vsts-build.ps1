@@ -36,14 +36,14 @@ if (-not $WorkingDirectory) { $WorkingDirectory = Split-Path $PSScriptRoot }
 # Prepare publish folder
 Write-Host "Creating and populating publishing directory"
 $publishDir = New-Item -Path $WorkingDirectory -Name publish -ItemType Directory -Force
-Copy-Item -Path "$($WorkingDirectory)\TelemetryHelper" -Destination $publishDir.FullName -Recurse -Force
+Copy-Item -Path "$($WorkingDirectory)/TelemetryHelper" -Destination $publishDir.FullName -Recurse -Force
 
 #region Gather text data to compile
 $text = @()
 $processed = @()
 
 # Gather Stuff to run before
-foreach ($filePath in (& "$($PSScriptRoot)\..\TelemetryHelper\internal\scripts\preimport.ps1"))
+foreach ($filePath in (& "$($PSScriptRoot)/../TelemetryHelper/internal/scripts/preimport.ps1"))
 {
 	if ([string]::IsNullOrWhiteSpace($filePath)) { continue }
 	
@@ -55,15 +55,15 @@ foreach ($filePath in (& "$($PSScriptRoot)\..\TelemetryHelper\internal\scripts\p
 }
 
 # Gather commands
-Get-ChildItem -Path "$($publishDir.FullName)\TelemetryHelper\internal\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
+Get-ChildItem -Path "$($publishDir.FullName)/TelemetryHelper/internal/functions/" -Recurse -File -Filter "*.ps1" | ForEach-Object {
 	$text += [System.IO.File]::ReadAllText($_.FullName)
 }
-Get-ChildItem -Path "$($publishDir.FullName)\TelemetryHelper\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
+Get-ChildItem -Path "$($publishDir.FullName)/TelemetryHelper/functions/" -Recurse -File -Filter "*.ps1" | ForEach-Object {
 	$text += [System.IO.File]::ReadAllText($_.FullName)
 }
 
 # Gather stuff to run afterwards
-foreach ($filePath in (& "$($PSScriptRoot)\..\TelemetryHelper\internal\scripts\postimport.ps1"))
+foreach ($filePath in (& "$($PSScriptRoot)/../TelemetryHelper/internal/scripts/postimport.ps1"))
 {
 	if ([string]::IsNullOrWhiteSpace($filePath)) { continue }
 	
@@ -76,10 +76,10 @@ foreach ($filePath in (& "$($PSScriptRoot)\..\TelemetryHelper\internal\scripts\p
 #endregion Gather text data to compile
 
 #region Update the psm1 file
-$fileData = Get-Content -Path "$($publishDir.FullName)\TelemetryHelper\TelemetryHelper.psm1" -Raw
+$fileData = Get-Content -Path "$($publishDir.FullName)/TelemetryHelper/TelemetryHelper.psm1" -Raw
 $fileData = $fileData.Replace('"<was not compiled>"', '"<was compiled>"')
 $fileData = $fileData.Replace('"<compile code into here>"', ($text -join "`n`n"))
-[System.IO.File]::WriteAllText("$($publishDir.FullName)\TelemetryHelper\TelemetryHelper.psm1", $fileData, [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText("$($publishDir.FullName)/TelemetryHelper/TelemetryHelper.psm1", $fileData, [System.Text.Encoding]::UTF8)
 #endregion Update the psm1 file
 
 #region Updating the Module Version
@@ -97,7 +97,7 @@ if ($AutoVersion)
 	}
 
 	$parameter = @{
-		Path = "$($publishDir.FullName)\TelemetryHelper\TelemetryHelper.psd1"
+		Path = "$($publishDir.FullName)/TelemetryHelper/TelemetryHelper.psd1"
 	}
 
 	[Version]$remoteModuleVersion = $remoteVersion -replace '-\w+'
@@ -123,12 +123,12 @@ if ($SkipPublish) { return }
 if ($LocalRepo)
 {
 	Write-Host "Creating Nuget Package for module: TelemetryHelper"
-	New-PSMDModuleNugetPackage -ModulePath "$($publishDir.FullName)\TelemetryHelper" -PackagePath .
+	New-PSMDModuleNugetPackage -ModulePath "$($publishDir.FullName)/TelemetryHelper" -PackagePath .
 }
 else
 {
 	# Publish to Gallery
 	Write-Host "Publishing the TelemetryHelper module to $($Repository)"
-	Publish-Module -Path "$($publishDir.FullName)\TelemetryHelper" -NuGetApiKey $ApiKey -Force -Repository $Repository
+	Publish-Module -Path "$($publishDir.FullName)/TelemetryHelper" -NuGetApiKey $ApiKey -Force -Repository $Repository
 }
 #endregion Publish

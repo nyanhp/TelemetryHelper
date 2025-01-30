@@ -201,7 +201,7 @@ namespace de.janhendrikpeters
             Debug.Write("Event sent");
         }
 
-        public void SendAvailability (string testName, DateTimeOffset timeStamp, TimeSpan duration, string location, bool success = true, string message = "", Dictionary<string, string> properties = null, Dictionary<string, double> metrics = null)
+        public void SendAvailability(string testName, DateTimeOffset timeStamp, TimeSpan duration, string location, bool success = true, string message = "", Dictionary<string, string> properties = null, Dictionary<string, double> metrics = null)
         {
             if (!HasOptedIn) return;
 
@@ -215,13 +215,13 @@ namespace de.janhendrikpeters
             telemetryClient.Flush();
         }
 
-        public void SendError(Exception exc)
+        public void SendError(Exception exc, Dictionary<string, string> properties = null, Dictionary<string, double> metrics = null)
         {
             if (!HasOptedIn) return;
 
             Debug.Write($"User opted in, sending exception");
 
-            telemetryClient.TrackException(exc);
+            telemetryClient.TrackException(exc, properties, metrics);
             Debug.Write("Event sent");
         }
 

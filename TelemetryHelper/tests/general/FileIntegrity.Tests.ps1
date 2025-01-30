@@ -1,6 +1,6 @@
-﻿$moduleRoot = (Resolve-Path "$global:testroot\..").Path
+﻿$moduleRoot = (Resolve-Path "$global:testroot/..").Path
 
-. "$global:testroot\general\FileIntegrity.Exceptions.ps1"
+. "$global:testroot/general/FileIntegrity.Exceptions.ps1"
 
 Describe "Verifying integrity of module files" {
 	BeforeAll {
@@ -42,11 +42,11 @@ Describe "Verifying integrity of module files" {
 	}
 
 	Context "Validating PS1 Script files" {
-		$allFiles = Get-ChildItem -Path $moduleRoot -Recurse | Where-Object Name -like "*.ps1" | Where-Object FullName -NotLike "$moduleRoot\tests\*"
+		$allFiles = Get-ChildItem -Path $moduleRoot -Recurse | Where-Object Name -like "*.ps1" | Where-Object FullName -NotLike "$moduleRoot[/\]tests[/\]*"
 		
 		foreach ($file in $allFiles)
 		{
-			$name = $file.FullName.Replace("$moduleRoot\", '')
+			$name = $file.FullName.Replace("$moduleRoot\", '').Replace("$moduleRoot/", '')
 			
 			It "[$name] Should have UTF8 encoding with Byte Order Mark" -TestCases @{ file = $file } {
 				Get-FileEncoding -Path $file.FullName | Should -Be 'UTF8 BOM'
@@ -77,11 +77,11 @@ Describe "Verifying integrity of module files" {
 	}
 	
 	Context "Validating help.txt help files" {
-		$allFiles = Get-ChildItem -Path $moduleRoot -Recurse | Where-Object Name -like "*.help.txt" | Where-Object FullName -NotLike "$moduleRoot\tests\*"
+		$allFiles = Get-ChildItem -Path $moduleRoot -Recurse | Where-Object Name -like "*.help.txt" | Where-Object FullName -NotLike "$moduleRoot[/\]tests[/\]*"
 		
 		foreach ($file in $allFiles)
 		{
-			$name = $file.FullName.Replace("$moduleRoot\", '')
+			$name = $file.FullName.Replace("$moduleRoot\", '').Replace("$moduleRoot/", '')
 			
 			It "[$name] Should have UTF8 encoding" -TestCases @{ file = $file } {
 				Get-FileEncoding -Path $file.FullName | Should -Be 'UTF8 BOM'
