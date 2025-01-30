@@ -11,7 +11,7 @@
 Describe "Testing localization strings" {
 	$moduleRoot = (Get-Module TelemetryHelper).ModuleBase
 	$stringsResults = Export-PSMDString -ModuleRoot $moduleRoot
-	$exceptions = & "$global:testroot\general\strings.Exceptions.ps1"
+	$exceptions = & "$global:testroot/general/strings.Exceptions.ps1"
 	
 	foreach ($stringEntry in $stringsResults) {
         if ($stringEntry.String -eq "key") { continue } # Skipping the template default entry

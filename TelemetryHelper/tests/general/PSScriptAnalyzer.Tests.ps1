@@ -4,7 +4,7 @@ Param (
 	$SkipTest,
 	
 	[string[]]
-	$CommandPath = @("$global:testroot\..\functions", "$global:testroot\..\internal\functions")
+	$CommandPath = @("$global:testroot/../functions", "$global:testroot/../internal/functions")
 )
 
 if ($SkipTest) { return }
