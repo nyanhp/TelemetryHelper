@@ -3,7 +3,7 @@
     RootModule           = 'TelemetryHelper.psm1'
 	
     # Version number of this module.
-    ModuleVersion        = '2.2.2'
+    ModuleVersion        = '2.3.0'
 	
     CompatiblePSEditions = 'Core', 'Desktop'
 	
@@ -28,11 +28,11 @@
     # Modules that must be imported into the global environment prior to importing
     # this module
     RequiredModules      = @(
-        @{ ModuleName='PSFramework'; ModuleVersion='1.12.346' }
+        @{ ModuleName = 'PSFramework'; ModuleVersion = '1.12.346' }
     )
 	
     # Assemblies that must be loaded prior to importing this module
-    #RequiredAssemblies   = @('bin\netstandard2.0\TelemetryHelper.dll')
+    #ReqiredAssemblies   = @('bin\netstandard2.0\TelemetryHelper.dll')
 	
     # Type files (.ps1xml) to be loaded when importing this module
     # TypesToProcess = @('xml\TelemetryHelper.Types.ps1xml')
@@ -75,13 +75,13 @@
         PSData = @{
 			
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @('Telemetry', 'ApplicationInsights')
+            Tags       = @('Telemetry', 'ApplicationInsights')
 			
             # A URL to the license for this module.
-            # LicenseUri = ''
+            LicenseUri = 'https://raw.githubusercontent.com/nyanhp/TelemetryHelper/refs/heads/main/LICENSE'
 			
             # A URL to the main website for this project.
-            # ProjectUri = ''
+            ProjectUri = 'https://github.com/nyanhp/TelemetryHelper'
 			
             # A URL to an icon representing this module.
             # IconUri = ''
