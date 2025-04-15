@@ -7,7 +7,7 @@
     The text to send
 .PARAMETER SeverityLevel
     The severity of the trace message
-.PARAMETER ModuleName
+.PARAMETER CallingModule
     Auto-generated, used to select the proper configuration in case you have different modules
 .PARAMETER DoNotFlush
     Indicates that data should be collected and flushed by the telemetry client at regular intervals
@@ -34,9 +34,10 @@ function Send-THTrace
         [ValidateSet('Critical', 'Error', 'Warning', 'Information', 'Verbose')]
         $SeverityLevel = 'Information',
 
+        [Alias('ModuleName')]
         [Parameter()]
         [string]
-        $ModuleName = (Get-CallingModule),
+        $CallingModule = (Get-CallingModule),
 
         [Parameter()]
         [switch]
@@ -45,12 +46,12 @@ function Send-THTrace
 
     begin
     {
-        $telemetryInstance = Get-THTelemetryConfiguration -ModuleName $ModuleName
+        $telemetryInstance = Get-THTelemetryConfiguration -ModuleName $CallingModule
 
         if ($null -eq $telemetryInstance)
         {
-            Initialize-THTelemetry -ModuleName $ModuleName
-            $telemetryInstance = Get-THTelemetryConfiguration -ModuleName $ModuleName
+            Initialize-THTelemetry -ModuleName $CallingModule
+            $telemetryInstance = Get-THTelemetryConfiguration -ModuleName $CallingModule
         }
     }
 

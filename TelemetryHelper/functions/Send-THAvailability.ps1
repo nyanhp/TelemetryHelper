@@ -22,7 +22,7 @@
 .PARAMETER DoNotFlush
     Indicates that data should be collected and flushed by the telemetry client at regular intervals
     Intervals are 30s or 500 metrics
-.PARAMETER ModuleName
+.PARAMETER CallingModule
     Auto-generated, used to select the proper configuration in case you have different modules
 .EXAMPLE
     Send-THAvailability -TestName PublicEndpoint -Location 'Amsterdam' -Duration [TimeSpan]::FromMilliseconds(120)
@@ -68,9 +68,10 @@ function Send-THAvailability
         [System.Collections.Hashtable]
         $MetricsHash,
 
+        [Alias('ModuleName')]
         [Parameter()]
         [string]
-        $ModuleName = (Get-CallingModule),
+        $CallingModule = (Get-CallingModule),
 
         [Parameter()]
         [switch]
@@ -79,12 +80,12 @@ function Send-THAvailability
 
     begin
     {
-        $telemetryInstance = Get-THTelemetryConfiguration -ModuleName $ModuleName
+        $telemetryInstance = Get-THTelemetryConfiguration -ModuleName $CallingModule
 
         if ($null -eq $telemetryInstance)
         {
-            Initialize-THTelemetry -ModuleName $ModuleName
-            $telemetryInstance = Get-THTelemetryConfiguration -ModuleName $ModuleName
+            Initialize-THTelemetry -ModuleName $CallingModule
+            $telemetryInstance = Get-THTelemetryConfiguration -ModuleName $CallingModule
         }
 
         if ($MetricsHash)

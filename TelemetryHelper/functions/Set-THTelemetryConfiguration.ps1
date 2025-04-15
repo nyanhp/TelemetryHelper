@@ -9,7 +9,7 @@
     Override environment variable and opt-in
 .PARAMETER StripPersonallyIdentifiableInformation
     Remove information such as the host name from telemetry
-.PARAMETER ModuleName
+.PARAMETER CallingModule
     Auto-generated, used to select the proper configuration in case you have different modules
 .PARAMETER PassThru
     Return the configuration object for further processing
@@ -39,34 +39,35 @@ function Set-THTelemetryConfiguration
         [bool]
         $StripPersonallyIdentifiableInformation = $true,
 
+        [Alias('ModuleName')]
         [Parameter()]
         [string]
-        $ModuleName = (Get-CallingModule),
+        $CallingModule = (Get-CallingModule),
 
         [Parameter()]
         [switch]
         $PassThru
     )
 
-    if ($PSCmdlet.ShouldProcess("$ModuleName telemetry", "ACTIVATE!"))
+    if ($PSCmdlet.ShouldProcess("$CallingModule telemetry", "ACTIVATE!"))
     {
-        if ($null -eq (Get-PSFConfigValue -FullName TelemetryHelper.TelemetryStore)[$ModuleName])
+        if ($null -eq (Get-PSFConfigValue -FullName TelemetryHelper.TelemetryStore)[$CallingModule])
         {
-            Initialize-THTelemetry -ModuleName $ModuleName
+            Initialize-THTelemetry -ModuleName $CallingModule
         }
 
         # Set object properties
-        (Get-PSFConfigValue -FullName TelemetryHelper.TelemetryStore)[$ModuleName].StripPii = $StripPersonallyIdentifiableInformation
+        (Get-PSFConfigValue -FullName TelemetryHelper.TelemetryStore)[$CallingModule].StripPii = $StripPersonallyIdentifiableInformation
 
         # Register module-specific info
-        Set-PSFConfig -Module 'TelemetryHelper' -Name "$($ModuleName).OptInVariable" -Value $OptInVariableName -Description 'The name of the environment variable used to indicate that telemetry should be sent' -PassThru | Register-PSFConfig
-        Set-PSFConfig -Module 'TelemetryHelper' -Name "$($ModuleName).OptIn" -Value $UserOptIn -Validation bool -Description 'Whether user opts into telemetry or not' -PassThru | Register-PSFConfig
-        Set-PSFConfig -Module 'TelemetryHelper' -Name "$($ModuleName).RemovePII" -Value $StripPersonallyIdentifiableInformation -Validation bool -Description "Whether information like the computer name should be stripped from the data that is sent" -PassThru | Register-PSFConfig
+        Set-PSFConfig -Module 'TelemetryHelper' -Name "$($CallingModule).OptInVariable" -Value $OptInVariableName -Description 'The name of the environment variable used to indicate that telemetry should be sent' -PassThru | Register-PSFConfig
+        Set-PSFConfig -Module 'TelemetryHelper' -Name "$($CallingModule).OptIn" -Value $UserOptIn -Validation bool -Description 'Whether user opts into telemetry or not' -PassThru | Register-PSFConfig
+        Set-PSFConfig -Module 'TelemetryHelper' -Name "$($CallingModule).RemovePII" -Value $StripPersonallyIdentifiableInformation -Validation bool -Description "Whether information like the computer name should be stripped from the data that is sent" -PassThru | Register-PSFConfig
 
 
         if ($PassThru)
         {
-            (Get-PSFConfigValue -FullName TelemetryHelper.TelemetryStore)[$ModuleName]
+            (Get-PSFConfigValue -FullName TelemetryHelper.TelemetryStore)[$CallingModule]
         }
     }
 }

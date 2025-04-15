@@ -5,7 +5,7 @@
     Adds ApplicationInsights connection string to module's telemetry config
 .PARAMETER ConnectionString
     The instrumentation API key, e.g. (Get-AzApplicationInsights -ResourceGroupName TotallyTerrificTelemetryTest -Name TurboTelemetry).ConnectionString
-.PARAMETER ModuleName
+.PARAMETER CallingModule
     Auto-generated, used to select the proper configuration in case you have different modules
 .EXAMPLE
     Add-THAppInsightsConnectionString InstrumentationKey=4852e725-d412-4d7d-ad86-25df570b7f13;IngestionEndpoint=https://westeurope-5.in.applicationinsights.azure.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.com/
@@ -24,16 +24,17 @@ function Add-THAppInsightsConnectionString
         [string]
         $ConnectionString,
 
+        [Alias('ModuleName')]
         [Parameter()]
         [string]
-        $ModuleName = (Get-CallingModule)
+        $CallingModule = (Get-CallingModule)
     )
 
-    if ($null -eq (Get-THTelemetryConfiguration -ModuleName $ModuleName))
+    if ($null -eq (Get-THTelemetryConfiguration -ModuleName $CallingModule))
     {
-        Set-THTelemetryConfiguration -ModuleName $ModuleName -OptInVariableName "$($ModuleName)telemetryOptIn"
+        Set-THTelemetryConfiguration -ModuleName $CallingModule -OptInVariableName "$($CallingModule)telemetryOptIn"
     }
 
-    (Get-THTelemetryConfiguration -ModuleName $ModuleName).UpdateConnectionString($ConnectionString)
-    Set-PSFConfig -Module TelemetryHelper -Name "$ModuleName.ApplicationInsights.ConnectionString" -Value $ConnectionString -PassThru -Hidden | Register-PSFConfig
+    (Get-THTelemetryConfiguration -ModuleName $CallingModule).UpdateConnectionString($ConnectionString)
+    Set-PSFConfig -Module TelemetryHelper -Name "$CallingModule.ApplicationInsights.ConnectionString" -Value $ConnectionString -PassThru -Hidden | Register-PSFConfig
 }

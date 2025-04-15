@@ -5,7 +5,7 @@
     Send an exception
 .PARAMETER Exception
     The exception to send
-.PARAMETER ModuleName
+.PARAMETER CallingModule
     Auto-generated, used to select the proper configuration in case you have different modules
 .PARAMETER DoNotFlush
     Indicates that data should be collected and flushed by the telemetry client at regular intervals
@@ -24,9 +24,10 @@ function Send-THException
         [Exception]
         $Exception,
 
+        [Alias('ModuleName')]
         [Parameter()]
         [string]
-        $ModuleName = (Get-CallingModule),
+        $CallingModule = (Get-CallingModule),
 
         [Parameter()]
         [switch]
@@ -35,12 +36,12 @@ function Send-THException
 
     begin
     {
-        $telemetryInstance = Get-THTelemetryConfiguration -ModuleName $ModuleName
+        $telemetryInstance = Get-THTelemetryConfiguration -ModuleName $CallingModule
 
         if ($null -eq $telemetryInstance)
         {
-            Initialize-THTelemetry -ModuleName $ModuleName
-            $telemetryInstance = Get-THTelemetryConfiguration -ModuleName $ModuleName
+            Initialize-THTelemetry -ModuleName $CallingModule
+            $telemetryInstance = Get-THTelemetryConfiguration -ModuleName $CallingModule
         }
     }
 
