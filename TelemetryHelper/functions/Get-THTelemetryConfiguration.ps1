@@ -3,7 +3,7 @@
     Get the current telemetry config
 .DESCRIPTION
     Get the current telemetry config
-.PARAMETER ModuleName
+.PARAMETER CallingModule
     Auto-generated, used to select the proper configuration in case you have different modules
 .EXAMPLE
     Get-THTelemetryConfiguration
@@ -15,10 +15,11 @@ function Get-THTelemetryConfiguration
     [CmdletBinding()]
     param
     (
+        [Alias('ModuleName')]
         [Parameter()]
         [string]
-        $ModuleName = (Get-CallingModule)
+        $CallingModule = (Get-CallingModule)
     )
 
-    (Get-PSFConfigValue -FullName TelemetryHelper.TelemetryStore)[$ModuleName]
+    (Get-PSFConfigValue -FullName TelemetryHelper.TelemetryStore)[$CallingModule]
 }
